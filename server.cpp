@@ -58,15 +58,15 @@ void handle_create(pugi::xml_document &doc, pugi::xml_document &response){
         accountID = stoi(symbol_child.first_attribute().value());
         amount = stoi(symbol_child.text().data().value());
     //}
-    cout << "current create symbol:" << accountID << ", " << amount << endl;
+    //cout << "current create symbol:" << accountID << ", " << amount << endl;
     if(create_position(symbol, amount, accountID)) {
-      cout << "account exist" << endl;
+      //cout << "account exist" << endl;
       pugi::xml_node nodeCreated = node_res.append_child("created");
       nodeCreated.append_attribute("sym") = symbol.c_str();
       nodeCreated.append_attribute("id") = accountID;
     }
     else{
-      cout << "account doesn't exist" << endl;
+      //cout << "account doesn't exist" << endl;
       pugi::xml_node nodeError = node_res.append_child("error");
       nodeError.append_attribute("sym") = symbol.c_str();
       nodeError.append_attribute("id") = accountID;
@@ -81,16 +81,16 @@ void handle_create(pugi::xml_document &doc, pugi::xml_document &response){
 }
 
 void handle_transaction(pugi::xml_document &doc, pugi::xml_document &response) {
-  cout << "Calling handle_transaction" << endl;
+  //cout << "Calling handle_transaction" << endl;
   // xml_document response store the response
   pugi::xml_node node_res = response.append_child("results");
   int account_id = stoi(doc.child("transactions").first_attribute().value());
-  cout << "account_id = " << account_id << endl;
+  //cout << "account_id = " << account_id << endl;
   // check whether account_id exist
   // if not exist, <error id="ACCOUNT_ID">"Invalid account_id"</error>
   for (pugi::xml_node node : doc.child("transactions")) {
     if (!strcmp(node.name(), "order")) {
-      cout << "Enter order part" << endl;
+      //cout << "Enter order part" << endl;
       string symbol = "";
       float amount = 0;
       float price = 0;
@@ -131,23 +131,23 @@ void handle_transaction(pugi::xml_document &doc, pugi::xml_document &response) {
       // int price = 0;
     }
     else if (!strcmp(node.name(), "query")) {
-      cout << "Enter query part" <<    endl;
+      //cout << "Enter query part" <<    endl;
       int queryId = stoi(node.first_attribute().value());
-      query(queryId, node_res);
+      query(queryId, account_id, node_res);
     }
     else if (!strcmp(node.name(), "cancel")) {
-      cout << "Enter cancel part" << endl;
+      //cout << "Enter cancel part" << endl;
       int order_id = stoi(node.first_attribute().value());
-      cancel(order_id, node_res);
+      cancel(order_id, account_id, node_res);
     }
     else {
-      cout << "Invalid Request" << endl;
+      //cout << "Invalid Request" << endl;
     }
   }
 }
 
 string handle_request(string request, int size) {
-  cout<< "Calling handle_request!" << endl;
+  //cout<< "Calling handle_request!" << endl;
   pugi::xml_document doc;
   char * request_char = (char *)request.c_str();
   pugi::xml_parse_result res = doc.load_buffer_inplace(request_char, size);
@@ -156,7 +156,7 @@ string handle_request(string request, int size) {
     cout << "Error in Parsing XML" << endl;
   }
   if (doc.child("create")) {
-    cout<< "Calling handle_create!" << endl;
+    //cout<< "Calling handle_create!" << endl;
     handle_create(doc, response);
   } else if (doc.child("transactions")) {
     handle_transaction(doc, response);

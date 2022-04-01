@@ -20,6 +20,7 @@
   </symbol>
   <symbol sym="C">
     <account id="1">1000</account>  
+    <account id="2">1000</account>
   </symbol>
   <symbol sym="A">
     <account id="4">1000</account>
