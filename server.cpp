@@ -24,6 +24,7 @@
 #include "implementDB.hpp"
 #include "threadpool.hpp"
 //#include "pugiconfig.hpp"
+int NumOfRequest = 0;
 using namespace std;
 void handle_create(pugi::xml_document &doc, pugi::xml_document &response){
   pugi::xml_node node_res = response.append_child("results");
@@ -96,15 +97,15 @@ void handle_transaction(pugi::xml_document &doc, pugi::xml_document &response) {
       float price = 0;
       int attr_index = 0;
       for (pugi::xml_attribute attri : node.attributes()) {
-    if (attr_index == 0) {
-      symbol = attri.value();
-      attr_index++;
-    } else if (attr_index == 1) {
-      amount = stoi(attri.value());
-      attr_index++;
-    } else if (attr_index == 2) {
-      price = stoi(attri.value());
-    }
+	if (attr_index == 0) {
+	  symbol = attri.value();
+	  attr_index++;
+	} else if (attr_index == 1) {
+	  amount = stoi(attri.value());
+	  attr_index++;
+	} else if (attr_index == 2) {
+	  price = stoi(attri.value());
+	}
       }
       string mes = check_order(account_id, symbol, amount, price);
       const char * mes_char = mes.c_str();
@@ -147,7 +148,7 @@ void handle_transaction(pugi::xml_document &doc, pugi::xml_document &response) {
 }
 
 string handle_request(string request, int size) {
-  //cout<< "Calling handle_request!" << endl;
+  //  cout<< ++NumOfRequest << endl;
   pugi::xml_document doc;
   char * request_char = (char *)request.c_str();
   pugi::xml_parse_result res = doc.load_buffer_inplace(request_char, size);
@@ -170,28 +171,29 @@ string handle_request(string request, int size) {
 }
 
 void server_handle_request(int client_connection_fd){
-     int length;
-     //&player_id, sizeof(player_id)
-     recv(client_connection_fd, &length, sizeof(length), 0);
-     char buffer[1024];
-     // recv(client_connection_fd, buffer, , 0);
-     recv(client_connection_fd, buffer, length, 0);
-     // buffer[9] = 0;
-     // string s1(st, st + strlen(st));
-
-     string request(buffer, buffer + length);
-     //cout << "Request[n-1]:" << request[strlen(buffer) - 1] << endl;
-     //cout << "Request(str): " << request << endl;
-
-     string rsp = handle_request(request, length);
-     int lengthRSP = rsp.length();
-     send(client_connection_fd, &lengthRSP, sizeof(lengthRSP), 0);
-     send(client_connection_fd, rsp.c_str(), lengthRSP, 0);
-     //cout << "Server received: " << buffer << endl;
-     cout << "Response's size : " << lengthRSP << endl;
-     cout << rsp << "Don't be ridiculous"<<endl;
-     //freeaddrinfo(host_info_list);
-     close(client_connection_fd);
+  ++NumOfRequest;
+  int length;
+  //&player_id, sizeof(player_id)
+  recv(client_connection_fd, &length, sizeof(length), 0);
+  char buffer[10240];
+  // recv(client_connection_fd, buffer, , 0);
+  recv(client_connection_fd, buffer, length, 0);
+  // buffer[9] = 0;
+  // string s1(st, st + strlen(st));
+  
+  string request(buffer, buffer + length);
+  //cout << "Request[n-1]:" << request[strlen(buffer) - 1] << endl;
+  //cout << "Request(str): " << request << endl;
+  
+  string rsp = handle_request(request, length);
+  int lengthRSP = rsp.length();
+  send(client_connection_fd, &lengthRSP, sizeof(lengthRSP), 0);
+  send(client_connection_fd, rsp.c_str(), lengthRSP, 0);
+  //cout << "Server received: " << buffer << endl;
+  //cout << "Response's size : " << lengthRSP << endl;
+  cout << NumOfRequest << "\n" << rsp << endl;
+  //  freeaddrinfo(host_info_list);
+  close(client_connection_fd);
 }
 
 int main(int argc, char *argv[])
@@ -204,13 +206,10 @@ int main(int argc, char *argv[])
   struct addrinfo *host_info_list;
   const char *hostname = NULL;
   const char *port     = "12345";
-
   memset(&host_info, 0, sizeof(host_info));
-
   host_info.ai_family   = AF_UNSPEC;
   host_info.ai_socktype = SOCK_STREAM;
   host_info.ai_flags    = AI_PASSIVE;
-
   status = getaddrinfo(hostname, port, &host_info, &host_info_list);
   if (status != 0) {
     cerr << "Error: cannot get address info for host" << endl;
@@ -229,6 +228,11 @@ int main(int argc, char *argv[])
 
   int yes = 1;
   status = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+  if (status == -1) {
+    cerr << "Error: socket operation fails." << endl;
+    //cerr << "  (" << hostname << "," << port << ")" << endl;
+    return -1;
+  }
   status = bind(socket_fd, host_info_list->ai_addr, host_info_list->ai_addrlen);
   if (status == -1) {
     cerr << "Error: cannot bind socket" << endl;
@@ -236,28 +240,35 @@ int main(int argc, char *argv[])
     return -1;
   } //if
 
-  status = listen(socket_fd, 100);
+  status = listen(socket_fd, 10240);
   if (status == -1) {
     cerr << "Error: cannot listen on socket" << endl;
     cerr << "  (" << hostname << "," << port << ")" << endl;
     return -1;
   } //if
-    
-    threadpool runner{50};
-    while(1){
-        cout << "Waiting for connection on port " << port << endl;
-        struct sockaddr_storage socket_addr;
-        socklen_t socket_addr_len = sizeof(socket_addr);
-        int client_connection_fd = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
-        if (client_connection_fd == -1) {
-            cerr << "Error: cannot accept connection on socket" << endl;
-            return -1;
-        } // if
-	
-	runner.commit(server_handle_request, client_connection_fd).get();
-        //thread t(server_handle_request, client_connection_fd);
-        //t.join();
+  cout << "Waiting for connection on port " << port << endl;
+  threadpool runner{20};
+  while(1){
+    try {
+      //cout << "Waiting for connection on port " << port << endl;
+      struct sockaddr_storage socket_addr;
+      socklen_t socket_addr_len = sizeof(socket_addr);
+      int client_connection_fd = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
+      if (client_connection_fd == -1) {
+	cerr << "Error: cannot accept connection on socket" << endl;
+	return -1;
+      } // if
+      
+      //runner.commit(server_handle_request, client_connection_fd).get();
+      thread t(server_handle_request, client_connection_fd);
+      t.join();
+      //cout << NumOfRequest << endl;
     }
-    close(socket_fd);
+    catch (const std::exception &e) {
+      cerr << e.what() << std::endl;
+    }
+  }
+  freeaddrinfo(host_info_list);
+  close(socket_fd);
     return 0;
 }

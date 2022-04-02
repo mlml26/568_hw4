@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transactions account="2">
-  <order sym="A" amount="-8" limit="50"/>
-  <order sym="B" amount="10" limit="100"/>
-  <order sym="C" amount="-10" limit="20"/>  <!--execute-->
+  <order sym="CUPS" amount="8000" limit="1330"/>  <!--error: insufficient balance-->
+  <order sym="CUPS" amount="12" limit="20"/>
+  <order sym="APPLE" amount="10" limit="14"/>  <!--if execute, then update position-->
+  <order sym="CUPS" amount="-87" limit="52"/>
+  <order sym="APPLE" amount="1110" limit="10"/>
+  <order sym="EARBUGS" amount="-1" limit="30"/>  <!--execute-->
   <query id="6"/>
 </transactions>

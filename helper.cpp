@@ -7,8 +7,10 @@
 #include <pthread.h>
 #include <thread>
 using namespace std;
-#define MAX_THREAD 1
+int requestNUM = 0;
+#define MAX_THREAD 1000
 void *handler(void *arg){
+  requestNUM++;
   int status;
   int socket_fd;
   struct addrinfo host_info;
@@ -23,8 +25,7 @@ void *handler(void *arg){
 
   memset(&host_info, 0, sizeof(host_info));
   host_info.ai_family   = AF_UNSPEC;
-  host_info.ai_socktype = SOCK_STREAM;
-
+  host_info.ai_socktype = SOCK_STREAM;  
   status = getaddrinfo(hostname, port, &host_info, &host_info_list);
   if (status != 0) {
     cerr << "Error: cannot get address info for host" << endl;
@@ -64,35 +65,42 @@ void *handler(void *arg){
   }
   ifs.close();
 
-  const char *message = "Good Night! I'm listening to MAMAMOO";
+  //  const char *message = "Good Night! I'm listening to MAMAMOO";
   int length = lines.length();
-  cout << "Size of XML file is :" << length << endl; 
+  //cout << "Size of XML file is :" << length << endl; 
   send(socket_fd, &length, sizeof(length), 0);
-  cout << "Content of lines is :" << lines << endl;
+  //cout << "Content of lines is :" << lines << endl;
   send(socket_fd, lines.c_str(),lines.length(), 0);
-  char buffer[1024];
+  char buffer[10240];
   int lengthRSP;
   recv(socket_fd, &lengthRSP, sizeof(lengthRSP), 0);
   recv(socket_fd, buffer, lengthRSP, 0);
 
   string rsp(buffer, buffer + lengthRSP);
-  cout << "Content of Response is :" << rsp <<"Don't be ridiculous"<< endl;
+  cout << requestNUM<< ": \n" << rsp <<"Don't be ridiculous"<< endl;
   freeaddrinfo(host_info_list);
   close(socket_fd);
   return 0;
 }
 
 int main(int argc, char **argv) {
-  int threads[MAX_THREAD];
-  pthread_attr_t thread_attr[MAX_THREAD];
-  pthread_t thread_ids[MAX_THREAD];
-
-  for (int i = 0; i < MAX_THREAD; ++i) {
-    threads[i] = pthread_create(&thread_ids[i], NULL, handler, argv[1]);
-    usleep(1000);
+  try {    
+    //int MAX_THREAD = stoi(argv[2]);
+    int threads[MAX_THREAD];
+    pthread_attr_t thread_attr[MAX_THREAD];
+    pthread_t thread_ids[MAX_THREAD];
+    
+    for (int i = 0; i < MAX_THREAD; ++i) {
+      threads[i] = pthread_create(&thread_ids[i], NULL, handler, argv[1]);
+      usleep(1000);
+    }
+    for (int i = 0; i < MAX_THREAD; ++i) {
+      pthread_join(thread_ids[i], NULL);
+    }
+  } catch (const std::exception &e) {
+    cerr << e.what() << std::endl;
+    return 1;
   }
-  for (int i = 0; i < MAX_THREAD; ++i) {
-    pthread_join(thread_ids[i], NULL);
-  }
+  cout << requestNUM <<endl;
   return 0;
 }

@@ -4,28 +4,26 @@
   <account id="2" balance="10000"/>
   <account id="3" balance="30000"/>
   <account id="4" balance="10000"/>
-  <account id="1" balance="10000"/>
-  <symbol sym="A">
-    <account id="1">1000</account>
-    <account id="1">1000</account>
-    <account id="2">1000</account>
-    <account id="5">1000</account>
+  <account id="5" balance="10000"/>
+  <symbol sym="EARBUGS">
+    <account id="1">200</account>
   </symbol>
-  <symbol sym="A">
-    <account id="1">1000</account>
+  <symbol sym="CUPS">
+    <account id="2">200</account>
+    <account id="3">300</account>
   </symbol>
-  <symbol sym="B">
-    <account id="2">1000</account>
-   <account id="3">1000</account>
+  <symbol sym="APPLE">
+    <account id="1">400</account>  
+    <account id="2">500</account>
   </symbol>
-  <symbol sym="C">
-    <account id="1">1000</account>  
-    <account id="2">1000</account>
+  <symbol sym="EARBUGS">
+    <account id="5">300</account>
+    <account id="4">200</account>
   </symbol>
-  <symbol sym="A">
-    <account id="4">1000</account>
-  </symbol>
-  <symbol sym="B">
-    <account id="4">1000</account>
+  <symbol sym="CUPS">
+    <account id="1">100</account>
+    <account id="2">100</account>
+    <account id="3">100</account>
+    <account id="4">100</account>
   </symbol>
 </create>

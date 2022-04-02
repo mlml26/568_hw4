@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transactions account="1">
-  <query id="1"/>
+   <order sym="EARBUGS" amount="-20" limit="200"/>   <!--error: insufficient amount-->
+  <order sym="EARBUGS" amount="-2000" limit="300"/>
+  <order sym="CUPS" amount="8000" limit="1330"/>  <!--error: insufficient balance-->
+  <order sym="CUPS" amount="12" limit="20"/>
+  <order sym="APPLE" amount="10" limit="14"/>  <!--if execute, then update position-->
   <query id="2"/>
-  <query id="3"/>
-  <query id="4"/>
+  <query id="1"/>
+  <cancel id="2"/>
+  <cancel id="4"/>
 </transactions>

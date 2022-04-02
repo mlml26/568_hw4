@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<transactions account="1">
-  <order sym="A" amount="-5000" limit="100"/>   <!--error: insufficient amount-->
-  <order sym="A" amount="-500" limit="100"/>
-  <order sym="B" amount="500" limit="100"/>  <!--error: insufficient balance-->
-  <order sym="B" amount="5" limit="100"/>
-  <order sym="C" amount="10" limit="50"/>  <!--if execute, then update position-->
-  <order sym="B" amount="-200000" limit="20000"/> <!--error-->
-  <order sym="D" amount="20" limit="2000"/> <!--error-->
+<transactions account="2">
+  <order sym="EARBUGS" amount="-20" limit="200"/>   <!--error: insufficient amount-->
+  <order sym="EARBUGS" amount="-2000" limit="300"/>
+  <order sym="CUPS" amount="8000" limit="1330"/>  <!--error: insufficient balance-->
+  <order sym="CUPS" amount="12" limit="20"/>
+  <order sym="APPLE" amount="10" limit="14"/>  <!--if execute, then update position-->
+  <order sym="CUPS" amount="-200000" limit="20000"/> <!--error-->
+  <order sym="APPLE" amount="20" limit="2000"/> <!--error-->
 </transactions>
